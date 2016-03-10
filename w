@@ -34,20 +34,13 @@ function uri
 { # <uri>
   u="$@";
   [[ -z "$u" ]] && return 1
-  case "${u}" in
-    *://*) # Overly simplistic
-      echo "$u";
-      return 0;
-      ;;
-    *.com/?|*.org/?|*.net/?)
-      echo "https://${u}";
-      return 0;
-      ;;
-    *)
-      echo "${u}" >>$srch;
-      echo "http://www.duckduckgo.com/?q=$(rawurlencode "${u}")"
-      ;;
-  esac
+  ur='((https?|ftp|file)://)?[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*\.[-A-Za-z0-9\+&@#/%=~_|]'
+  if [[ "${u}" =~ $ur ]]; then
+    echo "$u";
+  else
+    echo "${u}" >>$srch;
+    echo "http://www.duckduckgo.com/?q=$(rawurlencode "${u}")"
+  fi
 }
 
 function clean_files
@@ -92,14 +85,14 @@ function mod_surf
            | xargs -0 printf %b \
            && expose $bmks $hist $srch \
            ) | $DMENU )" && prop="$(uri "${prop}")";
-  [[ $? == 0 ]] && xprop -id $1 -f $2 8s -set $3 "${prop}"
+  [[ $? == 0 ]] && xprop -id $1 -f $3 8s -set $3 "${prop}"
 }
 
 # MAIN
 case "$1" in
   '-setprop')
     shift;
-    mod_surf "$@" && exit 0;
+    mod_surf $@ && exit 0;
     ;;
   '-dmenu')
     uri="$(expose $bmarks $hist $srch | $DMENU)";
