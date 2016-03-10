@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cower -d -d "$@";
+
+if [[ -d "$HOME/aur/${1}" ]]; then
+  cd "$HOME/aur/${1}";
+fi

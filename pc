@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# package clean
+
+echo;
+if pacman -Qqdt; then
+  echo -n "Remove these packages? "; read yn
+  case $yn in
+    n|N*) exit 2 ;;
+    *) sudo pacman -Rs $(pacman -Qqdt) ;;
+  esac
+else
+  echo "Nothing to clean." >&2
+  exit 1;
+fi
