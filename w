@@ -7,7 +7,7 @@ bmks="$XDG_CONFIG_HOME/surf/bookmarks";
 hist="$XDG_DATA_HOME/surf/history";
 xidf="/tmp/tabbed-surf.xid";
 sdir="$XDG_DATA_HOME/surf/sessions";
-DMENU="dmenu -i -l 10 -sf #8eb2a4";
+DMENU="dmenu -i -l 10 -sf #097647";
 
 for f in $bmks $hist; do
   [[ -f $f ]] || touch $f;
