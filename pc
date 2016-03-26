@@ -3,7 +3,7 @@
 # package clean
 
 echo;
-if pacman -Qqdt; then
+if pacman -Qqdt && echo; then
   echo -n "Remove these packages? "; read yn;
   case $yn in
     n|N*) exit 2 ;;
