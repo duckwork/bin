@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -euf -o pipefail
+
+scheme=$XDG_DATA_HOME/colorscheme
+
+[[ -f "$scheme" ]] || echo "dark" >"$scheme";
+
+current=$(cat $scheme)
+
+opt="${1:-toggle}"
+
+usage() {
+    cat <<EOF
+    Usage: $(basename $0) <light|dark|toggle>
+EOF
+}
+
+case "$opt" in
+    light) echo "light" > "$scheme" ;;
+    dark)  echo "dark"  > "$scheme" ;;
+    toggle)
+        if [[ $current == "light" ]]; then
+            echo "dark" > "$scheme";
+        else
+            echo "light" > "$scheme";
+        fi
+    ;;
+    *) usage ;;
+esac
+
+# Update windows
+for w in $(xdotool search --class st-256color); do
+    xdotool key --window "$w" F13;
+done
+
+for w in $(xdotool search --name NVIM$); do
+    xdotool key --window "$w" F14;
+done
+
+for w in $(xdotool search --name VIMpager$); do
+    xdotool key --window "$w" F14;
+done
