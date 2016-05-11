@@ -4,11 +4,7 @@
 
 echo;
 if pacman -Qqdt && echo; then
-  echo -n "Remove these packages? "; read yn;
-  case $yn in
-    n|N*) exit 2 ;;
-    *) sudo pacman -Rs $(pacman -Qqdt) ;;
-  esac
+    sudo pacman -Rs $(pacman -Qqdt) || exit 2;
 else
   echo "Nothing to clean." >&2;
   exit 1;
