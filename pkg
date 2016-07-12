@@ -1,0 +1,47 @@
+#!/bin/sh
+# because I change shit too much
+
+# as of now, it only does a few things
+# because that's really all I need to do
+
+CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/bauerbill/bauerbill.json"
+BUILDDIR="$HOME/builds/bauerbill"
+mkdir -p $CONFIGDIR $BUILDDIR 2>/dev/null
+
+MGR="/usr/bin/bauerbill --bb-config ${CONFIG} --build-dir ${BUILDDIR}"
+
+add() {
+    sudo $MGR -S --aur "${@}";
+    if [ -x "$BUILDDIR/download.sh" ]; then
+        echo "Downloading AUR packages..."
+        $BUILDDIR/download.sh
+    fi
+    if [ -x "$BUILDDIR/build.sh" ]; then
+        echo "Building..."
+        $BUILDDIR/build.sh
+    fi
+}
+
+remove() {
+    sudo $MGR -R "${@}";
+}
+
+search() {
+    $MGR -Ss --aur "${@}" 2>/dev/null;
+    # UGLY
+    if [ $? -eq 1 ]; then
+        echo "Didn't find anything."
+        return 2
+    fi
+}
+
+update() {
+    if [ -n "$1" ]; then return 1; fi
+    sudo $MGR -Syyu --aur;
+}
+
+# main
+if [ -z "$1" ]; then exit 1; fi
+action="${1}" && shift;
+$action "${@}";
+exit $?;
