@@ -15,10 +15,12 @@ add() {
     if [ -x "$BUILDDIR/download.sh" ]; then
         echo "Downloading AUR packages..."
         $BUILDDIR/download.sh
+        rm $BUILDDIR/download.sh
     fi
     if [ -x "$BUILDDIR/build.sh" ]; then
         echo "Building..."
         $BUILDDIR/build.sh
+        rm $BUILDDIR/build.sh
     fi
 }
 
@@ -38,6 +40,15 @@ search() {
 update() {
     if [ -n "$1" ]; then return 1; fi
     sudo $MGR -Syyu --aur;
+}
+
+clean() {
+    if pacman -Qqdt && echo; then
+        sudo pacman -Rs $(pacman -Qqdt) || exit 2;
+    else
+        echo "Nothing to clean." >&2;
+        exit 1;
+    fi
 }
 
 # main
