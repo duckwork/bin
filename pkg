@@ -1,19 +1,19 @@
 #!/bin/sh
 # because I change shit too much
-
 # as of now, it only does a few things
 # because that's really all I need to do
-
 # TODO: detect package manager & use it ?
 
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/bauerbill/bauerbill.json"
 BUILDDIR="$HOME/builds/bauerbill"
 mkdir -p $CONFIGDIR $BUILDDIR 2>/dev/null
 
-MGR="/usr/bin/bauerbill --bb-config ${CONFIG} --build-dir ${BUILDDIR}"
+manager=bauerbill
+bauerbill_opts=("--bb-config" "${CONFIG}"
+                "--build-dir" "${BUILDDIR}")
 
-add() {
-    sudo $MGR -S --aur "${@}";
+_add_bauerbill() {
+    sudo bauerbill ${bauerbill_opts[@]} -S --aur "${@}";
     if [ -x "$BUILDDIR/download.sh" ]; then
         echo "Downloading AUR packages..."
         $BUILDDIR/download.sh
@@ -26,37 +26,35 @@ add() {
     fi
 }
 
-remove() {
-    sudo $MGR -R "${@}";
+_remove_bauerbill() {
+    sudo bauerbill -R "${@}";
 }
 
-search() {
-    $MGR -Ss --aur "${@}" 2>/dev/null;
-    # UGLY
-    if [ $? -eq 1 ]; then
-        echo "Didn't find anything."
-        return 2
-    fi
+_search_bauerbill() {
+    bauerbill -Ss --aur "${@}" 2>/dev/null || {
+        echo "Didn't find anything." >&2
+    }
 }
 
-update() {
-    if [ -n "$1" ]; then return 1; fi
-    sudo $MGR -Syyu --aur;
+_update_bauerbill() {
+    sudo bauerbill -Syyu --aur "${@}";
 }
 
-clean() {
-    # TODO: make package-manager-agnostic
+_clean_pacman() {
     if pacman -Qqdtt; then
-        sudo pacman -Rs $(pacman -Qqdtt) || return 2;
+        sudo pacman -Rs $(pacman -Qqdtt)
     else
         echo "Nothing to clean." >&2;
-        return 1;
     fi
 }
+_clean_bauerbill() { _clean_pacman "${@}" ; }
 
 # main
-# TODO: case $1 in ... *) $MGR $@
-if [ -z "$1" ]; then exit 1; fi
-action="${1}" && shift;
-$action "${@}";
-exit $?;
+case "$1" in
+    add)    shift; _add_${manager}    "${@}" ;;
+    remove) shift; _remove_${manager} "${@}" ;;
+    search) shift; _search_${manager} "${@}" ;;
+    update) shift; _update_${manager} "${@}" ;;
+    clean)  shift; _clean_${manager}         ;;
+    *)             $manager "${@}"           ;;
+esac
