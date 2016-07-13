@@ -4,6 +4,8 @@
 # as of now, it only does a few things
 # because that's really all I need to do
 
+# TODO: detect package manager & use it ?
+
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/bauerbill/bauerbill.json"
 BUILDDIR="$HOME/builds/bauerbill"
 mkdir -p $CONFIGDIR $BUILDDIR 2>/dev/null
@@ -43,15 +45,17 @@ update() {
 }
 
 clean() {
-    if pacman -Qqdt && echo; then
-        sudo pacman -Rs $(pacman -Qqdt) || exit 2;
+    # TODO: make package-manager-agnostic
+    if pacman -Qqdtt; then
+        sudo pacman -Rs $(pacman -Qqdtt) || return 2;
     else
         echo "Nothing to clean." >&2;
-        exit 1;
+        return 1;
     fi
 }
 
 # main
+# TODO: case $1 in ... *) $MGR $@
 if [ -z "$1" ]; then exit 1; fi
 action="${1}" && shift;
 $action "${@}";
