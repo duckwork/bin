@@ -16,13 +16,15 @@ _add_bauerbill() {
     sudo bauerbill ${bauerbill_opts[@]} -S --aur "${@}";
     if [ -x "$BUILDDIR/download.sh" ]; then
         echo "Downloading AUR packages..."
-        $BUILDDIR/download.sh
-        rm $BUILDDIR/download.sh
+        command cd $BUILDDIR
+        ./download.sh && rm download.sh
+        command cd -
+
     fi
     if [ -x "$BUILDDIR/build.sh" ]; then
-        echo "Building..."
-        $BUILDDIR/build.sh
-        rm $BUILDDIR/build.sh
+        command cd $BUILDDIR
+        ./build.sh && rm build.sh
+        command cd -
     fi
 }
 
