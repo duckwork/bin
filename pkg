@@ -5,7 +5,8 @@
 # TODO: detect package manager & use it ?
 
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/bauerbill/bauerbill.json"
-BUILDDIR="$HOME/builds/bauerbill"
+BUILDDIR="${BUILDDIR:-$HOME/.local/builds}/aur"
+PKGLIST="${XDG_CONFIG_HOME:-$HOME/.config}/pacman/pkglist.txt"
 mkdir -p $CONFIGDIR $BUILDDIR 2>/dev/null
 
 manager=bauerbill
@@ -18,13 +19,11 @@ _add_bauerbill() {
         echo "Downloading AUR packages..."
         command cd $BUILDDIR
         ./download.sh && rm download.sh
-        command cd -
 
     fi
     if [ -x "$BUILDDIR/build.sh" ]; then
         command cd $BUILDDIR
         ./build.sh && rm build.sh
-        command cd -
     fi
 }
 
@@ -37,6 +36,12 @@ _search_bauerbill() {
         echo "Didn't find anything." >&2
     }
 }
+
+# TODO: learn more about querying packages
+_query_pacman() {
+    pacman -Qs "${@}"
+}
+_query_bauerbill() { _query_pacman "${@}"; }
 
 _update_bauerbill() {
     sudo bauerbill -Syyu --aur "${@}";
@@ -51,12 +56,64 @@ _clean_pacman() {
 }
 _clean_bauerbill() { _clean_pacman "${@}" ; }
 
+usage() {
+    name=$(basename $0)
+    cat <<EOF
+
+    $name: easy package management on whatever (eventually)
+    Your package manager has been detected as: $(which $manager).
+
+    INVOCATION:
+        $name <add|remove|search|query|update|clean|help> [options] [packages]
+
+    OPTIONS:
+        add:    add a package
+        remove: remove a package
+        search: search for a package in the database
+        query:  query installed packages
+        update: update the package database and upgrade packages
+        clean:  remove unneeded packages
+        help:   show this message
+
+    You can also pass any options your package manager uses, and $name
+    will pass them to the manager.
+
+EOF
+    exit 1
+}
+
+_update_pkglist_pacman() {
+    pacman -Qqe >"$1";
+}
+_update_pkglist_bauerbill() { _update_pkglist_pacman "${@}" ; }
+
 # main
 case "$1" in
-    add)    shift; _add_${manager}    "${@}" ;;
-    remove) shift; _remove_${manager} "${@}" ;;
+    # Transactions
+    add)
+        shift;
+        _add_${manager} "${@}"
+        _update_pkglist_${manager} "$PKGLIST"
+        ;;
+    remove)
+        shift;
+        _remove_${manager} "${@}"
+        _update_pkglist_${manager} "$PKGLIST"
+        ;;
+    update)
+        shift;
+        _update_${manager} "${@}"
+        update_pkglist_${manager} "$PKGLIST"
+        ;;
+    clean)
+        shift;
+        _clean_${manager}
+        _update_pkglist_${manager} "$PKGLIST"
+        ;;
+     # Queries
     search) shift; _search_${manager} "${@}" ;;
-    update) shift; _update_${manager} "${@}" ;;
-    clean)  shift; _clean_${manager}         ;;
+    query)  shift; _query_${manager}  "${@}" ;;
+    # Other
+    help)          usage                     ;;
     *)             $manager "${@}"           ;;
 esac
