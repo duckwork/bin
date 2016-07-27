@@ -12,9 +12,10 @@ mkdir -p $CONFIGDIR $BUILDDIR 2>/dev/null
 manager=bauerbill
 bauerbill_opts=("--bb-config" "${CONFIG}"
                 "--build-dir" "${BUILDDIR}")
+bauerbill="bauerbill ${bauerbill_opts[@]}"
 
 _add_bauerbill() {
-    sudo bauerbill ${bauerbill_opts[@]} -S --aur "${@}";
+    sudo $bauerbill -S --aur "${@}";
     if [ -x "$BUILDDIR/download.sh" ]; then
         echo "Downloading AUR packages..."
         command cd $BUILDDIR
@@ -22,17 +23,18 @@ _add_bauerbill() {
 
     fi
     if [ -x "$BUILDDIR/build.sh" ]; then
+        echo "Building AUR packages..."
         command cd $BUILDDIR
         ./build.sh && rm build.sh
     fi
 }
 
 _remove_bauerbill() {
-    sudo bauerbill -R "${@}";
+    sudo $bauerbill -R "${@}";
 }
 
 _search_bauerbill() {
-    bauerbill -Ss --aur "${@}" 2>/dev/null || {
+    $bauerbill -Ss --aur "${@}" 2>/dev/null || {
         echo "Didn't find anything." >&2
     }
 }
@@ -44,7 +46,7 @@ _query_pacman() {
 _query_bauerbill() { _query_pacman "${@}"; }
 
 _update_bauerbill() {
-    sudo bauerbill -Syyu --aur "${@}";
+    sudo $bauerbill -Syyu --aur "${@}";
 }
 
 _clean_pacman() {
@@ -103,7 +105,7 @@ case "$1" in
     update)
         shift;
         _update_${manager} "${@}"
-        update_pkglist_${manager} "$PKGLIST"
+        _update_pkglist_${manager} "$PKGLIST"
         ;;
     clean)
         shift;
