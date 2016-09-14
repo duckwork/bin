@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if grep -q Discharging /sys/class/power_supply/BAT0/status; then
+    level=$(acpi | cut -d, -f2)
+    case "${level# }" in
+        100*) exit 1 ;;
+        *) printf '{%s}\n' "${level# }" ;;
+    esac
+fi

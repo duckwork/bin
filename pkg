@@ -113,7 +113,7 @@ case "$1" in
         _update_pkglist_${manager} "$PKGLIST"
         ;;
      # Queries
-    search) shift; _search_${manager} "${@}" ;;
+    search|grep) shift; _search_${manager} "${@}" ;;
     query)  shift; _query_${manager}  "${@}" ;;
     # Other
     help)          usage                     ;;

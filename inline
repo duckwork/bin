@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+IN=$1;
+shift;
+
+trap 'rm -f $tmp' 0
+tmp=$( mktemp )
+<$IN "$@" >$tmp && cat $tmp > $IN # preserve links

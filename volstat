@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if v=$(amixer sget Master | grep -E 'Playback.*\[on\]'); then
+    s=$(cut -d' ' -f4 <<< $v)
+else
+    s="[m]"
+fi
+
+printf '%s\n' $s

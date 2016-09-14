@@ -1,0 +1,32 @@
+#!/bin/sh
+
+getvolume() {
+    amixer sget Master | awk -F '[][]' '/dB/{print $2}'
+}
+getbrightness() {
+    bl=$(xbacklight -get);
+    echo "${bl%.*}";
+}
+
+loud() {
+    amixer sset Master 5+ >/dev/null 2>&1;
+}
+soft() {
+    amixer sset Master 5- >/dev/null 2>&1;
+}
+mute() {
+    if amixer sget Master | grep -q '\[on\]$'; then
+        amixer sset Master mute;
+    else
+        amixer sset Master unmute;
+    fi
+}
+
+bright() {
+    xbacklight -inc 10;
+}
+dim() {
+    xbacklight -dec 10;
+}
+
+$1;

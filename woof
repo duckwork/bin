@@ -1,0 +1,5 @@
+#!/bin/sh
+# custom mutt
+# for dmenu (woof)
+
+mutt -F $XDG_CONFIG_HOME/mutt/muttrc $@

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+isWifiUp() {
+    i=$(ip link show | grep 'state UP' | cut -d: -f2)
+    iw $i info >/dev/null 2>&1;
+    echo $i
+}
+
+if interface=$(isWifiUp); then
+    ssid=$(iw dev $interface link | grep SSID: | cut -d: -f2)
+    signal="$(awk 'NR==3{sub(/\.$/,"",$3); print $3}' /proc/net/wireless)"
+    printf "%s (%s%%)\n" "${ssid# }" "$signal";
+fi
