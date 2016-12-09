@@ -2,12 +2,37 @@
 
 isWifiUp() {
     i=$(ip link show | grep 'state UP' | cut -d: -f2)
-    iw $i info >/dev/null 2>&1;
-    echo $i
+    [ -z $i ] && return 2;
+    if iw $i link | grep -q 'Not connected'; then
+        return 1;
+    else
+        echo $i;
+    fi
 }
+# TODO: check if ethernet is up too
 
 if interface=$(isWifiUp); then
     ssid=$(iw dev $interface link | grep SSID: | cut -d: -f2)
     signal="$(awk 'NR==3{sub(/\.$/,"",$3); print $3}' /proc/net/wireless)"
-    printf "%s (%s%%)\n" "${ssid# }" "$signal";
+else
+    printf '%%{F%s}%s%%{F-}' "#888888" '(__)'
+    exit 1;
 fi
+
+# ESSID (90%)
+# printf "%s (%s%%)\n" "${ssid# }" "$signal";
+# exit 0;
+
+# NOW WITH COLORS
+case "${signal%\%}" in
+    [7-9]*) # good signal
+        printf "(%%{F%s}%s%%{F-})" "#11a811" "${ssid# }"
+        ;;
+    [4-6]*) # okay ish signal
+        printf "(%%{F%s}%s%%{F-})" "#a8a811" "${ssid# }"
+        ;;
+    *)      # shite signal
+        printf "(%%{F%s}%s%%{F-})" "#a81111" "${ssid# }"
+        ;;
+esac
+exit 0;

@@ -1,0 +1,14 @@
+#!/bin/bash
+# recursively remove empty directories
+
+[ -z "$1" ] && { echo "no arg"; exit 1; }
+
+for f in "$1"/*; do
+    [ ! -d "$f" ] && { echo "not dir: $f"; continue; }
+    if rmdir "$f" >/dev/null 2>&1; then
+        echo "rmdir: $f";
+    else
+        echo "descend: $f";
+        prunedirs "$f";
+    fi
+done

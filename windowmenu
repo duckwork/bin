@@ -1,0 +1,9 @@
+#!/bin/bash
+
+read px py <<END
+    $(wmp)
+END
+
+wmctrl -l | cut -d' ' -f5- | \
+dmenu -l 10 -x $px -y $py -w 250 | \
+xargs wmctrl -a

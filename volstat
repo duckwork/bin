@@ -1,9 +1,23 @@
 #!/bin/bash
 
-if v=$(amixer sget Master | grep -E 'Playback.*\[on\]'); then
-    s=$(cut -d' ' -f4 <<< $v)
-else
-    s="[m]"
-fi
+output() {
+    if v=$(amixer sget Master | grep -E 'Playback.*\[on\]'); then
+        s=$(cut -d' ' -f6 <<< $v)
+    else
+        s="%{F#888888}[m]%{F-}"
+    fi
 
-printf '%s\n' $s
+    printf '%s\n' $s
+}
+
+case "$1" in
+    toggle)
+        amixer sset Master toggle;
+        xmonadctl refresh-panel;
+        ;;
+    display)
+        urxvtc -geometry 32x20+1000+20 \
+               -name alsamixer -e alsamixer;
+        ;;
+    *) output ;;
+esac

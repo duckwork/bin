@@ -1,9 +1,36 @@
 #!/bin/bash
 
-if grep -q Discharging /sys/class/power_supply/BAT0/status; then
-    level=$(acpi | cut -d, -f2)
-    case "${level# }" in
-        100*) exit 1 ;;
-        *) printf '{%s}\n' "${level# }" ;;
-    esac
-fi
+level=$(acpi | cut -d, -f2 | tr -d '[ %]')
+case $level in
+    100*)   # full
+        exit 0;
+        ;;
+    [7-9]*) # good
+        color="#11a811";
+        ;;
+    [3-6]*) # okay
+        color="#a8a811";
+        ;;
+    [1-2]*) # uh
+        color="#a81111";
+        ;;
+    *)      # holy shit
+        color="#ff0000";
+        ;;
+esac
+
+case $(cat /sys/class/power_supply/AC0/online) in
+    0) # offline
+        symbol="-";
+        ;;
+    1) # online
+        symbol="+";
+        color="#1111a8";
+        ;;
+    *) # WTF
+        echo "WTF" >&2;
+        exit 2;
+        ;;
+esac
+
+printf "{%%{F%s}%d%s%%{F-}}" "$color" "$level" "$symbol"

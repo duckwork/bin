@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if mpc status | grep -q playing ; then
+    printf "%s" "$(mpc status | head -n1)"
+fi

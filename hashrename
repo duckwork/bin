@@ -1,0 +1,61 @@
+#!/bin/bash
+# from gist.github.com/SimplGy/renameToHash.sh
+
+# Constants
+CHAR_COUNT=12
+BLOCK_COUNT=6
+SKIP_SIZE=3
+COMPUTE_FULL_HASH=false # 'true' swaps speed for accuracy
+DEFAULT_PATTERN=".*\.(jpe?g|png|gif|mov|avi|mkv)$"
+
+if [ -z "$1" ]; then
+    PATTERN="$DEFAULT_PATTERN";
+else
+    PATTERN="$1";
+fi
+
+echo "This script will get the hash of $BLOCK_COUNT 512 byte blocks"
+echo "for each file it processes.  The first $CHAR_COUNT chars of this hash"
+echo "are used to rename the file."; echo
+
+files=$(find . -maxdepth 1 -type f | grep -iE $PATTERN)
+count=$(echo "$files" | wc -l | sed 's/^ *//')
+echo "Found $count files to rename."
+read -p "Proceed? <Y/n> " yn
+case $yn in
+    n|N|no|NO|No) exit 0 ;;
+esac
+
+IFS=$'\n'
+for f in $files; do
+    if [ COMPUTE_FULL_HASH = true ]; then
+        hash=$(md5 -q $f);
+    else
+        bytes="";
+        for ((i=1; i<=$BLOCK_COUNT; ++i)); do
+            let BLOCK=$i*$SKIP_SIZE
+            bytes+=$(dd if="$f" bs=512 count=1 skip=$BLOCK 2>/dev/null)
+        done
+        hash=$(md5 <<< $bytes)
+    fi
+
+    shortHash=$(echo $hash | cut -c1-$CHAR_COUNT)
+    ext=$(echo "$f" | sed 's/^.*\.//')
+    originalNameWithoutPath="${f##*/}"
+    if [[ $f == *"$shortHash"* ]]; then
+        echo "Skipping $f: already hashed.";
+        continue;
+    fi
+
+    newName="$shortHash.$ext";
+
+    i=0
+    while [ -f "$newName" ]; do
+        let i=i+1
+        newName="$shortHash ($i).$ext"
+    done
+
+    echo "$newName      <-      $f"
+    mv "$f" "$newName"
+
+done

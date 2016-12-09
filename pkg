@@ -97,7 +97,7 @@ case "$1" in
         _add_${manager} "${@}"
         _update_pkglist_${manager} "$PKGLIST"
         ;;
-    remove)
+    remove|rm)
         shift;
         _remove_${manager} "${@}"
         _update_pkglist_${manager} "$PKGLIST"
