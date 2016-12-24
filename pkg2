@@ -1,0 +1,92 @@
+#!/bin/sh
+# pkg 1.0
+# now with configs!
+
+confdir="${XDG_CONFIG_HOME:-$HOME/.config}/pkg"
+conf="$confdir/config"
+pkglist="$confdir/pkglist.txt"
+if [[ -f "$conf" ]]; then
+    . "$conf";
+else
+    echo "Can't find config ($conf); generating one..." >&2
+    mkdir -p "$confdir"
+    cat <<EOF >$conf
+pkg_manager=pacman
+pkg_manager_options=()
+EOF
+fi
+
+# Pacman functions for ease of use
+_add_pacman() { sudo pacman -S "${@}"; }
+_remove_pacman() { sudo pacman -S "${@}"; }
+_search_pacman() { pacman -Ss "${@}"; }
+_query_pacman() { pacman -Qs "${@}"; }
+_upgrade_pacman() { pacman -Syyu "${@}"; }
+_clean_pacman() {
+    if pacman -Qqdtt; then
+        sudo pacman -Rs $(pacman -Qqdtt)
+    else
+        echo "Nothing to clean." >&2;
+    fi
+}
+update_pkglist_pacman() { pacman -Qqe >"$1"; }
+_usage() {
+    name=$(basename $0)
+    cat <<EOF
+
+    $name: easy package management on whatever (eventually)
+    Your package manager has been detected as: $(which $manager).
+
+    INVOCATION:
+        $name <add|remove|search|query|update|clean|help> [options] [packages]
+
+    OPTIONS:
+        add:    add a package
+        remove: remove a package
+        search: search for a package in the database
+        query:  query installed packages
+        update: update the package database and upgrade packages
+        clean:  remove unneeded packages
+        help:   show this message
+
+    You can also pass any options your package manager uses, and $name
+    will pass them to the manager.
+
+EOF
+    exit 1
+}
+
+# main
+case "$1" in
+    # Transactions
+    add)
+        shift;
+        _add_${manager} "${@}"
+        _update_pkglist_${manager} "$PKGLIST"
+        ;;
+    remove|rm)
+        shift;
+        _remove_${manager} "${@}"
+        _update_pkglist_${manager} "$PKGLIST"
+        ;;
+    update)
+        shift;
+        _update_${manager} "${@}"
+        _update_pkglist_${manager} "$PKGLIST"
+        ;;
+    clean)
+        shift;
+        _clean_${manager}
+        _update_pkglist_${manager} "$PKGLIST"
+        ;;
+     # Queries
+    search|grep) shift; _search_${manager} "${@}" ;;
+    query)  shift; _query_${manager}  "${@}" ;;
+    # Other
+    help)          
+        usage                     
+        ;;
+    *)             
+        $manager "${@}"
+        ;;
+esac

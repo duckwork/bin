@@ -26,36 +26,40 @@ case $yn in
     n|N|no|NO|No) exit 0 ;;
 esac
 
-IFS=$'\n'
-for f in $files; do
-    if [ COMPUTE_FULL_HASH = true ]; then
-        hash=$(md5 -q $f);
-    else
-        bytes="";
-        for ((i=1; i<=$BLOCK_COUNT; ++i)); do
-            let BLOCK=$i*$SKIP_SIZE
-            bytes+=$(dd if="$f" bs=512 count=1 skip=$BLOCK 2>/dev/null)
+do_the_thing() {
+    IFS=$'\n'
+    for f in $files; do
+        if [ COMPUTE_FULL_HASH = true ]; then
+            hash=$(md5 -q $f);
+        else
+            bytes="";
+            for ((i=1; i<=$BLOCK_COUNT; ++i)); do
+                let BLOCK=$i*$SKIP_SIZE
+                bytes+=$(dd if="$f" bs=512 count=1 skip=$BLOCK 2>/dev/null)
+            done
+            hash=$(md5 <<< $bytes)
+        fi
+
+        shortHash=$(echo $hash | cut -c1-$CHAR_COUNT)
+        ext=$(echo "$f" | sed 's/^.*\.//')
+        originalNameWithoutPath="${f##*/}"
+        if [[ $f == *"$shortHash"* ]]; then
+            echo "Skipping $f: already hashed.";
+            continue;
+        fi
+
+        newName="$shortHash.$ext";
+
+        i=0
+        while [ -f "$newName" ]; do
+            let i=i+1
+            newName="$shortHash ($i).$ext"
         done
-        hash=$(md5 <<< $bytes)
-    fi
 
-    shortHash=$(echo $hash | cut -c1-$CHAR_COUNT)
-    ext=$(echo "$f" | sed 's/^.*\.//')
-    originalNameWithoutPath="${f##*/}"
-    if [[ $f == *"$shortHash"* ]]; then
-        echo "Skipping $f: already hashed.";
-        continue;
-    fi
+        echo "$newName      <-      $f"
+        mv "$f" "$newName"
 
-    newName="$shortHash.$ext";
-
-    i=0
-    while [ -f "$newName" ]; do
-        let i=i+1
-        newName="$shortHash ($i).$ext"
     done
+}
 
-    echo "$newName      <-      $f"
-    mv "$f" "$newName"
-
-done
+do_the_thing 2>/dev/null

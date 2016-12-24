@@ -9,6 +9,7 @@ BUILDDIR="${BUILDDIR:-$HOME/.local/builds}/aur"
 PKGLIST="${XDG_CONFIG_HOME:-$HOME/.config}/pacman/pkglist.txt"
 mkdir -p $CONFIGDIR $BUILDDIR 2>/dev/null
 
+
 manager=bauerbill
 bauerbill_opts=("--bb-config" "${CONFIG}"
                 "--build-dir" "${BUILDDIR}")

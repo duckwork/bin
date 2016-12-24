@@ -1,0 +1,41 @@
+#!/bin/bash
+
+hash xrandr || exit 1;
+[[ -z "$1" ]] && arg=on || arg="$1";
+
+desktop_monitor=DP1
+laptop_monitor=eDP1
+
+switch-to-desktop-monitor() {
+    xrandr --output $desktop_monitor --auto --rotate left \
+           --output $laptop_monitor --off;
+    hsetroot -center $XDG_CONFIG_HOME/colors/wall-vertical.current;
+    xmonad --restart;
+}
+
+switch-to-laptop-monitor() {
+    xrandr --output $laptop_monitor --auto \
+           --output $desktop_monitor --off
+    hsetroot -tile $XDG_CONFIG_HOME/colors/wall.current;
+    xmonad --restart;
+}
+
+use-both-monitors() {
+    xrandr --output $desktop_monitor --auto --rotate left \
+           --output $laptop_monitor --auto
+}
+
+case "$arg" in
+    on|desktop)
+        switch-to-desktop-monitor
+        ;;
+    off|laptop)
+        switch-to-laptop-monitor
+        ;;
+    toggle)
+        # TODO make this really toggle
+        switch-to-desktop-monitor
+        ;;
+    both)
+        ;;
+esac
