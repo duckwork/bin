@@ -2,9 +2,13 @@
 
 output() {
     if v=$(amixer sget Master | grep -E 'Playback.*\[on\]'); then
-        s=$(cut -d' ' -f6 <<< $v)
+        s=$(awk '{print $4}' <<< $v)
+        case $s in
+            '[100%]') s="[100]" ;;
+            *) ;;
+        esac
     else
-        s="%{F#888888}[m]%{F-}"
+        s="%{F#888888}[---]%{F-}"
     fi
 
     printf '%s\n' $s

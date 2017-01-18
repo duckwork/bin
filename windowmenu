@@ -1,8 +1,11 @@
 #!/bin/bash
 
-read px py <<END
-    $(wmp)
-END
+# read px py <<END
+#     $(wmp)
+# END
+
+px=100
+py=100
 
 wmctrl -l | cut -d' ' -f5- | \
 dmenu -l 10 -x $px -y $py -w 250 | \

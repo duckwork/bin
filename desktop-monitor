@@ -7,7 +7,7 @@ desktop_monitor=DP1
 laptop_monitor=eDP1
 
 switch-to-desktop-monitor() {
-    xrandr --output $desktop_monitor --auto --rotate left \
+    xrandr --output $desktop_monitor --auto \
            --output $laptop_monitor --off;
     hsetroot -center $XDG_CONFIG_HOME/colors/wall-vertical.current;
     xmonad --restart;
@@ -21,7 +21,7 @@ switch-to-laptop-monitor() {
 }
 
 use-both-monitors() {
-    xrandr --output $desktop_monitor --auto --rotate left \
+    xrandr --output $desktop_monitor --auto \
            --output $laptop_monitor --auto
 }
 

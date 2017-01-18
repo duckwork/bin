@@ -15,7 +15,7 @@ if interface=$(isWifiUp); then
     ssid=$(iw dev $interface link | grep SSID: | cut -d: -f2)
     signal="$(awk 'NR==3{sub(/\.$/,"",$3); print $3}' /proc/net/wireless)"
 else
-    printf '%%{F%s}%s%%{F-}' "#888888" '(__)'
+    # printf '%%{F%s}%s%%{F-}' "#888888" '(__)'
     exit 1;
 fi
 

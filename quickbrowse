@@ -1,0 +1,3 @@
+#!/bin/sh
+
+qutebrowser --target window -R :'bind --force q quit' $@

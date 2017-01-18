@@ -1,3 +1,18 @@
-#!/bin/sh
+#!/bin/bash
+# an editor-betterizer
 
-exec urxvt -e /usr/bin/nvim "$@"
+#_editor="${EDITOR:-/usr/bin/vim}";
+_editor=nvim;
+for file in $@;
+do
+    if ! [ -f "$file" ]; then
+        continue;
+    else
+        if ! [ -w "$file" ]; then
+            local editor="/usr/bin/sudoedit";
+            break;
+        fi;
+    fi;
+done;
+editor=${editor:-$_editor};
+TERM=xterm $editor $@
