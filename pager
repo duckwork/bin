@@ -1,0 +1,5 @@
+#!/bin/sh
+
+TERM=xterm
+
+nvim -c 'set ft=man' -

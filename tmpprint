@@ -1,0 +1,12 @@
+#!/bin/bash
+
+file=${1:-/tmp/dl/print.pdf}
+
+lpr $file;
+
+read -p "Printed. Keep file [n]? " keep
+if [[ $keep =~ [yY].* ]]; then
+  exit
+fi
+
+rm $file;

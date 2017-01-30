@@ -1,12 +1,16 @@
 #!/bin/bash
 
-# read px py <<END
-#     $(wmp)
-# END
+if [[ "$1" == -m ]]; then
+  read px py <<END
+      $(wmp)
+END
+  dmenu="dmenu -l 10 -x $px -y $py -w 300"
+else
+  dmenu="dmenu -l 10"
+fi
 
-px=100
-py=100
-
-wmctrl -l | cut -d' ' -f5- | \
-dmenu -l 10 -x $px -y $py -w 250 | \
-xargs wmctrl -a
+bspc query -N -n .window |\
+  grep -vi "$(pfw)" |\
+  xargs xtitle |\
+  $dmenu |\
+  xargs wmctrl -a

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# My qemu command for archlinux vm
+
+qemu-system-x86_64 -drive file=/media/vms/rice.cow,format=qcow2 -m 1G

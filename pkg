@@ -9,7 +9,6 @@ BUILDDIR="${BUILDDIR:-$HOME/.local/builds}/aur"
 PKGLIST="${XDG_CONFIG_HOME:-$HOME/.config}/pacman/pkglist.txt"
 mkdir -p $CONFIGDIR $BUILDDIR 2>/dev/null
 
-
 manager=bauerbill
 bauerbill_opts=("--bb-config" "${CONFIG}"
                 "--build-dir" "${BUILDDIR}")
@@ -82,7 +81,7 @@ usage() {
     will pass them to the manager.
 
 EOF
-    exit 1
+    exit $1
 }
 
 _update_pkglist_pacman() {
@@ -117,6 +116,6 @@ case "$1" in
     search|grep) shift; _search_${manager} "${@}" ;;
     query)  shift; _query_${manager}  "${@}" ;;
     # Other
-    help)          usage                     ;;
+    help)          usage 0                   ;;
     *)             $manager "${@}"           ;;
 esac

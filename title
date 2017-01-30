@@ -3,6 +3,10 @@
 # set the title of the term
 
 [[ -z "$1" ]] && exit 1
+[[ "$1" == -r ]] && {
+  rm /tmp/title-set.$PPID;
+  exit;
+}
 
 str="${1}";
 shift;
@@ -11,5 +15,7 @@ while (( $# > 0 )); do
   str="${str} ${1}";
   shift;
 done
+
+printf '%s\n' "${str}" > /tmp/title-set.$PPID
 
 printf '\e]0;%s\7\n' "${str}"
