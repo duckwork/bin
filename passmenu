@@ -20,6 +20,8 @@ password=$(printf '%s\n' "${password_files[@]}" | dmenu "$@")
 
 if [[ $typeit -eq 0 ]]; then
     pass show -c "$password" 2>/dev/null;
+    notify-send.sh "Copied $password to clipboard." \
+                   "Will clear in 45 seconds."
 else
     pass show "$password" | { read -r pass; printf %s "$pass"; } | xdotool type --clearmodifiers --file -
 fi

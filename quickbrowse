@@ -1,3 +1,15 @@
 #!/bin/sh
 
-qutebrowser --target window -R :'bind --force q quit' $@
+read sw sh << END
+$(wattr wh $(lsw -r))
+END
+w=800; h=600;
+x=$(((sw - w) / 2))
+y=$(((sh - h) / 2))
+
+qutebrowser -R \
+  --target window \
+  --qt-arg name quickbrowse \
+  --qt-arg geometry ${w}x${h}+${x}+${y} \
+  :'bind --force o quit' \
+  "$@"

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if ! pgrep -x fava ; then
+  fava &
+fi
+
+quickbrowse http://localhost:5000

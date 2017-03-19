@@ -1,32 +1,38 @@
 #!/bin/sh
 
 getvolume() {
-    amixer sget Master | awk -F '[][]' '/dB/{print $2}'
+  amixer sget Master >/tmp/volstat
+  if grep -q '\[on\]$' /tmp/volstat; then
+    out="$(awk -F '[][]' '/dB/{print $2}' /tmp/volstat)";
+  else
+    out="[mute]"
+  fi
+  printf 'Volume: %s\n' "$out";
 }
 getbrightness() {
-    bl=$(xbacklight -get);
-    echo "${bl%.*}";
+  bl=$(xbacklight -get);
+  printf 'Brightness: %s\n' "${bl%.*}";
 }
 
 loud() {
-    amixer sset Master 5+ >/dev/null 2>&1;
+  amixer sset Master 5+ >/dev/null 2>&1;
 }
 soft() {
-    amixer sset Master 5- >/dev/null 2>&1;
+  amixer sset Master 5- >/dev/null 2>&1;
 }
 mute() {
-    if amixer sget Master | grep -q '\[on\]$'; then
-        amixer sset Master mute;
-    else
-        amixer sset Master unmute;
-    fi
+  if amixer sget Master | grep -q '\[on\]$'; then
+    amixer sset Master mute >/dev/null 2>&1;
+  else
+    amixer sset Master unmute >/dev/null 2>&1;
+  fi
 }
 
 bright() {
-    xbacklight -inc 10;
+  xbacklight -inc 10;
 }
 dim() {
-    xbacklight -dec 10;
+  xbacklight -dec 10;
 }
 
 $1;

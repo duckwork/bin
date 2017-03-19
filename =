@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+# https://github.com/onespaceman/menu-calc
+# forked by Case Duckworth
+# calculator for use with rofi/dmenu(2)
+
+usage() {
+  echo "    $(tput bold)menu calc$(tput sgr0)
+  A calculator for use with dmenu(2)
+  Basic usage:
+  = 4+2
+  = (4+2)/(4+3)
+  = 4^2
+  = sqrt(4)
+  = c(2)
+
+  The answer can be used for further calculations.
+
+  The expression may need quotation marks if
+  launched outside of Rofi/dmenu.
+
+  See also: xclip(1), bc(1)."
+  exit $1
+}
+
+case $1 in
+  -h|--help) usage 1 ;;
+esac
+
+# Path to menu
+cmd=$(command -v dmenu)
+if [[ -n "$cmd" ]]; then
+  menu="$cmd"
+else
+  echo >&2 "Dmenu not found"
+  exit 2
+fi
+
+answer=$(bc -l <<<"$@" | sed '/\./ s/\.\{0,1\}0\{1,\}$//')
+
+action=$(printf 'Copy\nClear\nClose' | $menu -p "= $answer")
+
+case $action in
+  "Clear") $0 ;;
+  "Copy") printf "$answer" | xclip ;;
+  "Close") exit 0 ;;
+  "") exit 3 ;;
+  *) $0 "$answer $action" ;;
+esac
+

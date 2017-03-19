@@ -4,13 +4,28 @@ if [[ "$1" == -m ]]; then
   read px py <<END
       $(wmp)
 END
-  dmenu="dmenu -l 10 -x $px -y $py -w 300"
+  dmenu="dmenu -i -l 10 -x $px -y $py -w 300"
 else
-  dmenu="dmenu -l 10"
+  dmenu="dmenu -i -l 10 -p window:"
 fi
 
-bspc query -N -n .window |\
-  grep -vi "$(pfw)" |\
-  xargs xtitle |\
+activate_or_cancel() {
+  IFS=:
+  while read wid wtitle; do
+    bspc node "$wid" -g hidden=off
+    bspc node "$wid" -f
+  done
+}
+
+bspc query -N -n .window | grep -vi "$(pfw)" |\
+  while read wid; do
+    printf '%s:%s\n' "$wid" "$(xtitle $wid)";
+  done |\
   $dmenu |\
-  xargs wmctrl -a
+  activate_or_cancel
+
+
+  # grep -vi "$(pfw)" |\
+  # { xargs xtitle; echo "cancel"; } |\
+  # $dmenu |\
+  # activate_or_cancel
