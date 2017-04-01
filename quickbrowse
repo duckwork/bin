@@ -11,5 +11,5 @@ qutebrowser -R \
   --target window \
   --qt-arg name quickbrowse \
   --qt-arg geometry ${w}x${h}+${x}+${y} \
-  :'bind --force o quit' \
+  # :'bind --force o quit' \
   "$@"
